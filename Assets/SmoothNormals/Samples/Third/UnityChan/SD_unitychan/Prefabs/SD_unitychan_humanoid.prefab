@@ -1972,9 +1972,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2540521515576496355}
   - component: {fileID: 2540521515585797643}
-  - component: {fileID: 2540521514872819576}
   m_Layer: 0
-  m_Name: SD_unitychan_humanoid (1)
+  m_Name: SD_unitychan_humanoid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2015,18 +2014,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &2540521514872819576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2540521515576396995}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0cd89f4238da7443b37ea2c8f557618, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2540521515576397001
 GameObject:
   m_ObjectHideFlags: 0
