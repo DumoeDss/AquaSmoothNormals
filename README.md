@@ -149,13 +149,9 @@ public class SmoothNormalsMeshImporter : AssetPostprocessor
 
 ## Showcase
 
-OriginNormals:
+![](Pictures/ScreenShot00.png)
 
-![](Pictures/CubeOriginalNormals0.png)
-
-SmoothedNormals
-
-![](Pictures/CubeSmoothedNormals0.png)
+![](Pictures/ScreenShot01.png)
 
 OriginNormals:
 
