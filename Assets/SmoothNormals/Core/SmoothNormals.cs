@@ -3,7 +3,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace AquaSys.Tools
+namespace AquaSys.SmoothNormals
 {
     public class SmoothNormals
     {

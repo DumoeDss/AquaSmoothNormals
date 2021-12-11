@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AquaSys.Tools.Samples
+namespace AquaSys.SmoothNormals.Samples
 {
     /// <summary>
     /// A simple free camera to be added to a Unity game object.

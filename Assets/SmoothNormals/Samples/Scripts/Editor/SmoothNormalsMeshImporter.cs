@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace AquaSys.Tools.Samples.Editor
+namespace AquaSys.SmoothNormals.Samples.Editor
 {
     //public class SmoothNormalsMeshImporter : AssetPostprocessor
     //{

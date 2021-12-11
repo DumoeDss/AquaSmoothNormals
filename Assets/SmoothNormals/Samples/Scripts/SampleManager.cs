@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-namespace AquaSys.Tools.Samples
+namespace AquaSys.SmoothNormals.Samples
 {
     public class SampleManager : MonoBehaviour
     {

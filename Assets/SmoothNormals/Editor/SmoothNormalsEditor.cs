@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-namespace AquaSys.Tools.Samples.Editor
+namespace AquaSys.SmoothNormals.Editor
 {
     public class SmoothNormalsEditor : EditorWindow
     {
