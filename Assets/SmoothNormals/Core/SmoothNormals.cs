@@ -15,8 +15,8 @@ namespace AquaSys.SmoothNormals
 
             int vertexCount = verts.Length;
 
-            int[] indices = mesh.triangles;
-            int indicesCount = indices.Length;
+            //int[] indices = mesh.triangles;
+            //int indicesCount = indices.Length;
 
             //Vector3[] recalcNors = new Vector3[vertexCount];
             //float[] angles = new float[vertexCount];
