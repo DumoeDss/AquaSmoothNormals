@@ -82,11 +82,22 @@ Shader "Unlit/SimpleOutline"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float3 OctahedronToUnitVector(float2 Oct)
+            {
+                float3 N = float3(Oct, 1 - dot(1, abs(Oct)));
+                if (N.z < 0)
+                {
+                    N.xy = (1 - abs(N.yx)) * (N.xy >= 0 ? float2(1, 1) : float2(-1, -1));
+                }
+                return normalize(N);
+            }
 
             float3 TransformTBN(float2 bakedNormal, float3x3 tbn)
             {
-                float3 normal = float3(bakedNormal, 0);
-                normal.z = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
+                float3 normal =
+                    OctahedronToUnitVector(bakedNormal);
+                    //float3(bakedNormal, 0);
+                //normal.z = sqrt(1.0 - saturate(dot(normal.xy, normal.xy)));
                 return  (mul(normal, tbn));
             }
      

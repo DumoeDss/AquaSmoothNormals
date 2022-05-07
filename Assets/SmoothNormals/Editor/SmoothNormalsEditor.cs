@@ -46,6 +46,7 @@ namespace AquaSys.SmoothNormals.Editor
                     }
                 }
                 EditorUtility.SetDirty(root);
+                AssetDatabase.Refresh();
             }
 
             if (mesh != null)
@@ -59,6 +60,7 @@ namespace AquaSys.SmoothNormals.Editor
                     mesh.SetUVs(7, SmoothNormals.ComputeSmoothedNormals(mesh));
                 }
                 EditorUtility.SetDirty(mesh);
+                AssetDatabase.Refresh();
             }
         }
     }

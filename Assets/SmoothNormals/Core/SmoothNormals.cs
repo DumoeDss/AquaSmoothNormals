@@ -15,8 +15,8 @@ namespace AquaSys.SmoothNormals
 
             int vertexCount = verts.Length;
 
-            //int[] indices = mesh.triangles;
-            //int indicesCount = indices.Length;
+            int[] indices = mesh.triangles;
+            int indicesCount = indices.Length;
 
             //Vector3[] recalcNors = new Vector3[vertexCount];
             //float[] angles = new float[vertexCount];
@@ -42,11 +42,15 @@ namespace AquaSys.SmoothNormals
             {
                 if (smoothedNormalsMap.ContainsKey(verts[i]))
                 {
-                    smoothedNormalsMap[verts[i]] = smoothedNormalsMap[verts[i]] + nors[i];//recalcNors[i] * angles[i];
+                    smoothedNormalsMap[verts[i]] = smoothedNormalsMap[verts[i]] +
+                    nors[i];
+                    //recalcNors[i] * angles[i];
                 }
                 else
                 {
-                    smoothedNormalsMap.Add(verts[i], nors[i]);// recalcNors[i] * angles[i]);
+                    smoothedNormalsMap.Add(verts[i],
+                     nors[i]);
+                     //recalcNors[i]  * angles[i]);
                 }
             }
 
@@ -69,6 +73,37 @@ namespace AquaSys.SmoothNormals
             bakedNormals.Dispose();
             return bakedSmoothedNormals;
         }
+
+        //static Vector3 CalcNormal(Vector3 p0, Vector3 p1, Vector3 p2, int num, ref float angle)
+        //{
+        //    Vector3 v1, v2;
+
+        //    switch (num)
+        //    {
+        //        case 1:
+        //            v1 = (p1 - p0).normalized;
+        //            v2 = (p2 - p1).normalized;
+        //            //angle = Mathf.Acos(Vector3.Dot(v1, v2));
+        //            break;
+
+        //        case 2:
+        //            v1 = (p2 - p1).normalized;
+        //            v2 = (p2 - p0).normalized;
+        //            //angle = Mathf.Acos(Vector3.Dot(v1, v2));
+
+        //            break;
+
+        //        default:
+        //            v1 = (p1 - p0).normalized;
+        //            v2 = (p2 - p0).normalized;
+        //            //angle = Mathf.Acos(Vector3.Dot(v1, -v2));
+
+        //            break;
+        //    }
+        //    angle = Mathf.Acos(Vector3.Dot(v1, v2));
+
+        //    return Vector3.Cross(v1, v2).normalized;
+        //}
 
         struct BakeNormalJob : IJobParallelFor
         {
@@ -104,41 +139,28 @@ namespace AquaSys.SmoothNormals
 
                 tbn = tbn.transpose;
 
-                var bakedNormal = tbn.MultiplyVector(smoothedNormal).normalized;
+                var bakedNormal = 
+                    OctahedronNormal(
+                    tbn.MultiplyVector(smoothedNormal).normalized
+                    )
+                    ;
 
                 bakedNormals[index] = bakedNormal;
             }
 
-
-            //static Vector3 CalcNormal(Vector3 p0, Vector3 p1, Vector3 p2, int num, ref float angle)
-            //{
-            //    Vector3 v1, v2;
-
-            //    switch (num)
-            //    {
-            //        case 1:
-            //            v1 = p1 - p0;
-            //            v2 = p2 - p1;
-            //            angle = Mathf.Acos(Vector3.Dot(v1, v2));
-
-            //            break;
-
-            //        case 2:
-            //            v1 = p2 - p1;
-            //            v2 = p0 - p2;
-            //            angle = Mathf.Acos(Vector3.Dot(v1, v2));
-
-            //            break;
-
-            //        default:
-            //            v1 = p1 - p0;
-            //            v2 = p2 - p0;
-            //            angle = Mathf.Acos(Vector3.Dot(v1, -v2));
-
-            //            break;
-            //    }
-            //    return Vector3.Cross(v1, v2);
-            //}
+            Vector2 OctahedronNormal(Vector3 ResultNormal)
+            {
+                Vector3 absVec = new Vector3(Mathf.Abs(ResultNormal.x), Mathf.Abs(ResultNormal.y), Mathf.Abs(ResultNormal.z));
+                Vector2 OctNormal = (Vector2)ResultNormal / Vector3.Dot(Vector3.one, absVec);
+                if (ResultNormal.z <= 0)
+                {
+                    float absY = Mathf.Abs(OctNormal.y);
+                    float value = (1 - absY) * (OctNormal.y >= 0 ? 1 : -1);
+                    OctNormal = new Vector2(value, value);
+                }
+                return OctNormal;
+            }
+           
         }
     }
 }
