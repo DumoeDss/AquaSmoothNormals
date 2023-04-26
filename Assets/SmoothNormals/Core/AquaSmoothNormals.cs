@@ -5,7 +5,13 @@ using UnityEngine;
 
 namespace AquaSys.SmoothNormals
 {
-    public class SmoothNormals
+    public enum SmoothedNormalType
+    {
+        Normal,
+        Compressed
+    }
+
+    public class AquaSmoothNormals
     {
         public static Vector2[] ComputeSmoothedNormals(Mesh mesh)
         {
@@ -15,21 +21,6 @@ namespace AquaSys.SmoothNormals
 
             int vertexCount = verts.Length;
 
-            //int[] indices = mesh.triangles;
-            //int indicesCount = indices.Length;
-
-            //Vector3[] recalcNors = new Vector3[vertexCount];
-            //float[] angles = new float[vertexCount];
-
-            //for (int i = 0; i < indicesCount - 3; i += 3)
-            //{
-            //    int idx0 = indices[i], idx1 = indices[i + 1], idx2 = indices[i + 2];
-
-            //    recalcNors[idx0] = CalcNormal(verts[idx0], verts[idx1], verts[idx2], 0, ref angles[idx0]);
-            //    recalcNors[idx1] = CalcNormal(verts[idx0], verts[idx1], verts[idx2], 1, ref angles[idx1]);
-            //    recalcNors[idx2] = CalcNormal(verts[idx0], verts[idx1], verts[idx2], 2, ref angles[idx2]);
-            //}
-
             if (tans.Length == 0)
             {
                 Debug.LogError($"{mesh.name} don't have tangents.");
@@ -37,20 +28,18 @@ namespace AquaSys.SmoothNormals
             }
 
             //CalcSmoothedNormals
-            UnsafeHashMap<Vector3, Vector3> smoothedNormalsMap = new UnsafeHashMap<Vector3, Vector3>(vertexCount, Allocator.Persistent);
+            UnsafeParallelHashMap<Vector3, Vector3> smoothedNormalsMap = new UnsafeParallelHashMap<Vector3, Vector3>(vertexCount, Allocator.Persistent);
             for (int i = 0; i < vertexCount; i++)
             {
                 if (smoothedNormalsMap.ContainsKey(verts[i]))
                 {
                     smoothedNormalsMap[verts[i]] = smoothedNormalsMap[verts[i]] +
                     nors[i];
-                    //recalcNors[i] * angles[i];
                 }
                 else
                 {
                     smoothedNormalsMap.Add(verts[i],
                      nors[i]);
-                     //recalcNors[i]  * angles[i]);
                 }
             }
 
@@ -74,49 +63,68 @@ namespace AquaSys.SmoothNormals
             return bakedSmoothedNormals;
         }
 
-        //static Vector3 CalcNormal(Vector3 p0, Vector3 p1, Vector3 p2, int num, ref float angle)
-        //{
-        //    Vector3 v1, v2;
+        public static Vector3[] ComputeSmoothedNormalsV3(Mesh mesh)
+        {
+            Vector3[] verts = mesh.vertices;
+            Vector3[] nors = mesh.normals;
+            Vector4[] tans = mesh.tangents;
 
-        //    switch (num)
-        //    {
-        //        case 1:
-        //            v1 = (p1 - p0).normalized;
-        //            v2 = (p2 - p1).normalized;
-        //            //angle = Mathf.Acos(Vector3.Dot(v1, v2));
-        //            break;
+            int vertexCount = verts.Length;
 
-        //        case 2:
-        //            v1 = (p2 - p1).normalized;
-        //            v2 = (p2 - p0).normalized;
-        //            //angle = Mathf.Acos(Vector3.Dot(v1, v2));
+            if (tans.Length == 0)
+            {
+                Debug.LogError($"{mesh.name} don't have tangents.");
+                return null;
+            }
 
-        //            break;
+            //CalcSmoothedNormals
+            UnsafeParallelHashMap<Vector3, Vector3> smoothedNormalsMap = new UnsafeParallelHashMap<Vector3, Vector3>(vertexCount, Allocator.Persistent);
+            for (int i = 0; i < vertexCount; i++)
+            {
+                if (smoothedNormalsMap.ContainsKey(verts[i]))
+                {
+                    smoothedNormalsMap[verts[i]] = smoothedNormalsMap[verts[i]] +
+                    nors[i];
+                }
+                else
+                {
+                    smoothedNormalsMap.Add(verts[i],
+                     nors[i]);
+                }
+            }
 
-        //        default:
-        //            v1 = (p1 - p0).normalized;
-        //            v2 = (p2 - p0).normalized;
-        //            //angle = Mathf.Acos(Vector3.Dot(v1, -v2));
+            //BakeSmoothedNormals
+            NativeArray<Vector3> normalsNative = new NativeArray<Vector3>(nors, Allocator.Persistent);
+            NativeArray<Vector3> vertrxNative = new NativeArray<Vector3>(verts, Allocator.Persistent);
+            NativeArray<Vector4> tangents = new NativeArray<Vector4>(tans, Allocator.Persistent);
+            NativeArray<Vector3> bakedNormals = new NativeArray<Vector3>(vertexCount, Allocator.Persistent);
 
-        //            break;
-        //    }
-        //    angle = Mathf.Acos(Vector3.Dot(v1, v2));
+            BakeNormalJobV3 bakeNormalJob = new BakeNormalJobV3(vertrxNative, normalsNative, tangents, smoothedNormalsMap, bakedNormals);
+            bakeNormalJob.Schedule(vertexCount, 100).Complete();
 
-        //    return Vector3.Cross(v1, v2).normalized;
-        //}
+            var bakedSmoothedNormals = new Vector3[vertexCount];
+            bakedNormals.CopyTo(bakedSmoothedNormals);
+
+            smoothedNormalsMap.Dispose();
+            normalsNative.Dispose();
+            vertrxNative.Dispose();
+            tangents.Dispose();
+            bakedNormals.Dispose();
+            return bakedSmoothedNormals;
+        }
 
         struct BakeNormalJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<Vector3> vertrx, normals;
             [ReadOnly] public NativeArray<Vector4> tangants;
             [NativeDisableContainerSafetyRestriction]
-            [ReadOnly] public UnsafeHashMap<Vector3, Vector3> smoothedNormals;
+            [ReadOnly] public UnsafeParallelHashMap<Vector3, Vector3> smoothedNormals;
             [WriteOnly] public NativeArray<Vector2> bakedNormals;
 
             public BakeNormalJob(NativeArray<Vector3> vertrx,
                 NativeArray<Vector3> normals,
                 NativeArray<Vector4> tangents,
-                UnsafeHashMap<Vector3, Vector3> smoothedNormals,
+                UnsafeParallelHashMap<Vector3, Vector3> smoothedNormals,
                 NativeArray<Vector2> bakedNormals)
             {
                 this.vertrx = vertrx;
@@ -161,6 +169,46 @@ namespace AquaSys.SmoothNormals
                 return OctNormal;
             }
            
+        }
+
+        struct BakeNormalJobV3 : IJobParallelFor
+        {
+            [ReadOnly] public NativeArray<Vector3> vertrx, normals;
+            [ReadOnly] public NativeArray<Vector4> tangants;
+            [NativeDisableContainerSafetyRestriction]
+            [ReadOnly] public UnsafeParallelHashMap<Vector3, Vector3> smoothedNormals;
+            [WriteOnly] public NativeArray<Vector3> bakedNormals;
+
+            public BakeNormalJobV3(NativeArray<Vector3> vertrx,
+                NativeArray<Vector3> normals,
+                NativeArray<Vector4> tangents,
+                UnsafeParallelHashMap<Vector3, Vector3> smoothedNormals,
+                NativeArray<Vector3> bakedNormals)
+            {
+                this.vertrx = vertrx;
+                this.normals = normals;
+                this.tangants = tangents;
+                this.smoothedNormals = smoothedNormals;
+                this.bakedNormals = bakedNormals;
+            }
+
+            void IJobParallelFor.Execute(int index)
+            {
+                Vector3 smoothedNormal = smoothedNormals[vertrx[index]];
+
+                var normalOS = normals[index].normalized;
+                Vector3 tangantOS = tangants[index];
+                tangantOS = tangantOS.normalized;
+                var bitangentOS = (Vector3.Cross(normalOS, tangantOS) * tangants[index].w).normalized;
+
+                var tbn = new Matrix4x4(tangantOS, bitangentOS, normalOS, Vector3.zero);
+
+                tbn = tbn.transpose;
+
+                var bakedNormal = tbn.MultiplyVector(smoothedNormal).normalized;
+
+                bakedNormals[index] = bakedNormal;
+            }
         }
     }
 }

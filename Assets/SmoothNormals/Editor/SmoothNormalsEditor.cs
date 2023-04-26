@@ -19,13 +19,45 @@ namespace AquaSys.SmoothNormals.Editor
         {
             root = (GameObject)EditorGUILayout.ObjectField("Model To Smooth", root, typeof(GameObject), true);
             mesh = (Mesh)EditorGUILayout.ObjectField("Mesh To Smooth", mesh, typeof(Mesh), true);
+            string modelPath = "";
+            if(root != null)
+            {
+
+                if (PrefabUtility.IsPartOfPrefabAsset(root))
+                {
+                 modelPath=   AssetDatabase.GetAssetPath(root);
+                }else if (PrefabUtility.IsPartOfPrefabInstance(root))
+                {
+                    var prefabAsset = PrefabUtility.GetCorrespondingObjectFromOriginalSource(root);
+                    modelPath = AssetDatabase.GetAssetPath(prefabAsset);
+                }
+            }
+           
             if (GUILayout.Button("SmoothNormals"))
             {
-                SmoothNormal();
+                if (!string.IsNullOrEmpty(modelPath))
+                {
+                    toAddLabel = true;
+                    AssetDatabase.ImportAsset(modelPath);
+                    toAddLabel = false;
+                }
+                else
+                {
+                    SmoothNormal();
+                }
             }
             if (GUILayout.Button("ClearSmoothedNormals"))
             {
-                SmoothNormal(true);
+                if (!string.IsNullOrEmpty(modelPath))
+                {
+                    toClearLabel = true;
+                    AssetDatabase.ImportAsset(modelPath);
+                    toClearLabel = false;
+                }
+                else
+                {
+                    SmoothNormal(true);
+                }
             }
         }
 
@@ -42,7 +74,7 @@ namespace AquaSys.SmoothNormals.Editor
                     }
                     else
                     {
-                        mesh.SetUVs(7, SmoothNormals.ComputeSmoothedNormals(mesh));
+                        mesh.SetUVs(7, AquaSmoothNormals.ComputeSmoothedNormals(mesh));
                     }
                 }
                 EditorUtility.SetDirty(root);
@@ -57,11 +89,54 @@ namespace AquaSys.SmoothNormals.Editor
                 }
                 else
                 {
-                    mesh.SetUVs(7, SmoothNormals.ComputeSmoothedNormals(mesh));
+                    mesh.SetUVs(7, AquaSmoothNormals.ComputeSmoothedNormals(mesh));
                 }
                 EditorUtility.SetDirty(mesh);
                 AssetDatabase.Refresh();
             }
+        }
+
+        static readonly string FlagLabel = "AquaOutlineBakedNormals";
+
+        public static bool toAddLabel;
+        public static bool toClearLabel;
+
+        public static bool CheckLabel(AssetImporter assetImporter)
+        {
+            foreach (var label in AssetDatabase.GetLabels(assetImporter))
+            {
+                if (label.Contains(FlagLabel))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static void AddLabel(AssetImporter assetImporter)
+        {
+            var labels = new List<string>(AssetDatabase.GetLabels(assetImporter));
+            if (!labels.Contains(FlagLabel))
+            {
+                labels.Add(FlagLabel);
+            }
+            else
+            {
+                Debug.LogWarning("Lable has beed added!");
+            }
+
+            AssetDatabase.SetLabels(assetImporter, labels.ToArray());
+        }
+
+        public static void RemoveLabel(AssetImporter assetImporter)
+        {
+            var labels = new List<string>(AssetDatabase.GetLabels(assetImporter));
+            if (labels.Contains(FlagLabel))
+            {
+                labels.Remove(FlagLabel);
+            }
+
+            AssetDatabase.SetLabels(assetImporter, labels.ToArray());
         }
     }
 

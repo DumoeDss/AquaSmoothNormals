@@ -116,7 +116,7 @@ namespace AquaSys.SmoothNormals.Samples
                     }
                     else
                     {
-                        skinnedMeshRenderer.sharedMesh.SetUVs(7, SmoothNormals.ComputeSmoothedNormals(skinnedMeshRenderer.sharedMesh));
+                        skinnedMeshRenderer.sharedMesh.SetUVs(7, AquaSmoothNormals.ComputeSmoothedNormals(skinnedMeshRenderer.sharedMesh));
                     }
                 }
             }
@@ -131,7 +131,7 @@ namespace AquaSys.SmoothNormals.Samples
                     }
                     else
                     {
-                        meshFilter.sharedMesh.SetUVs(7, SmoothNormals.ComputeSmoothedNormals(meshFilter.sharedMesh));
+                        meshFilter.sharedMesh.SetUVs(7, AquaSmoothNormals.ComputeSmoothedNormals(meshFilter.sharedMesh));
                     }
                 }
             }
