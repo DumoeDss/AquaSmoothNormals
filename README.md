@@ -1,16 +1,32 @@
 # Auqa Smooth Normals - Improved Outline Documentation
 
-Tnanks again for downloading the asset.
-
 **Auqa Smooth Normals** is used to solve the problem of stroke breakage due to unsmooth model normals in **runtime** or **editor**. 
 
 By default, Auqa Smooth Normals stores the repaired normals in the model's uv8, you can very simply integrate it into the shader of your project, and there is a simple outline shader in the package. 
 
-You are welcome to ask your questions to email address:
-
-dumoedss@gmail.com
-
 You can follow the below steps to set up the asset. Good luck!
+
+## Showcase
+
+![](Pictures/ScreenShot00.png)
+
+![](Pictures/ScreenShot01.png)
+
+OriginNormals:
+
+![](Pictures/UnityChanOriginalNormals0.png)
+
+SmoothedNormals
+
+![](Pictures/UnityChanSmoothedNormals0.png)
+
+OriginNormals:
+
+![](Pictures/UnityChanOriginalNormals1.png)
+
+SmoothedNormals
+
+![](Pictures/UnityChanSmoothedNormals1.png)
 
 ## Install
 
@@ -145,29 +161,9 @@ public class SmoothNormalsMeshImporter : AssetPostprocessor
     }
 ```
 
+If you want to support me, you can buy the store version, there is no difference in functionality between the two and the store version may be slower to update due to review issues.
 
-
-## Showcase
-
-![](Pictures/ScreenShot00.png)
-
-![](Pictures/ScreenShot01.png)
-
-OriginNormals:
-
-![](Pictures/UnityChanOriginalNormals0.png)
-
-SmoothedNormals
-
-![](Pictures/UnityChanSmoothedNormals0.png)
-
-OriginNormals:
-
-![](Pictures/UnityChanOriginalNormals1.png)
-
-SmoothedNormals
-
-![](Pictures/UnityChanSmoothedNormals1.png)
+https://assetstore.unity.com/packages/tools/utilities/aqua-smooth-normals-improved-outline-208444
 
 The model uses [Unity-Chan © Unity Technologies Japan/UCL](https://unity-chan.com/contents/guideline) 
 
